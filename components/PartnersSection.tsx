@@ -3,12 +3,19 @@
 import PartnerCard from "./PartnerCard";
 import { partnerStats } from "@/lib/data";
 import { partnerLogos } from "@/lib/assets";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function PartnersSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
 
+  const [isVisible, setIsVisible] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [visibleCount, setVisibleCount] = useState(2);
+  const [isPaused, setIsPaused] = useState(false);
+
+  /* -------------------------------------------------------
+     SECTION VISIBILITY
+  ------------------------------------------------------- */
   useEffect(() => {
     const section = sectionRef.current;
 
@@ -31,6 +38,92 @@ export default function PartnersSection() {
     return () => observer.disconnect();
   }, []);
 
+  /* -------------------------------------------------------
+     RESPONSIVE VISIBLE CARD COUNT
+
+     Mobile  → 2
+     Tablet  → 4
+     Desktop → 8
+  ------------------------------------------------------- */
+  useEffect(() => {
+    const updateVisibleCount = () => {
+      if (window.innerWidth >= 1024) {
+        setVisibleCount(8);
+      } else if (window.innerWidth >= 768) {
+        setVisibleCount(4);
+      } else {
+        setVisibleCount(2);
+      }
+    };
+
+    updateVisibleCount();
+
+    window.addEventListener("resize", updateVisibleCount);
+
+    return () => {
+      window.removeEventListener("resize", updateVisibleCount);
+    };
+  }, []);
+
+  /* -------------------------------------------------------
+     GROUP PARTNERS INTO SLIDES
+
+     Desktop → 8 per slide
+     Tablet  → 4 per slide
+     Mobile  → 2 per slide
+  ------------------------------------------------------- */
+  const slides = useMemo(() => {
+    const grouped = [];
+
+    for (let i = 0; i < partnerLogos.length; i += visibleCount) {
+      grouped.push(partnerLogos.slice(i, i + visibleCount));
+    }
+
+    return grouped;
+  }, [visibleCount]);
+
+  const totalSlides = slides.length;
+
+  /* -------------------------------------------------------
+     CAROUSEL CONTROLS
+  ------------------------------------------------------- */
+  const nextSlide = () => {
+    setCurrentIndex((prev) => {
+      if (totalSlides <= 1) return 0;
+      return (prev + 1) % totalSlides;
+    });
+  };
+
+  const previousSlide = () => {
+    setCurrentIndex((prev) => {
+      if (totalSlides <= 1) return 0;
+      return (prev - 1 + totalSlides) % totalSlides;
+    });
+  };
+
+  /* -------------------------------------------------------
+     RESET WHEN BREAKPOINT CHANGES
+  ------------------------------------------------------- */
+  useEffect(() => {
+    setCurrentIndex(0);
+  }, [visibleCount]);
+
+  /* -------------------------------------------------------
+     AUTOMATIC SLIDING
+  ------------------------------------------------------- */
+  useEffect(() => {
+    if (isPaused || totalSlides <= 1) return;
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % totalSlides);
+    }, 3500);
+
+    return () => clearInterval(interval);
+  }, [isPaused, totalSlides]);
+
+  /* -------------------------------------------------------
+     RENDER
+  ------------------------------------------------------- */
   return (
     <section
       ref={sectionRef}
@@ -39,7 +132,9 @@ export default function PartnersSection() {
     >
       <div className="max-w-container mx-auto px-4 md:px-8">
 
-        {/* Heading */}
+        {/* =================================================
+            HEADING
+        ================================================= */}
         <div
           className={`transition-all duration-700 ease-out ${
             isVisible
@@ -64,47 +159,251 @@ export default function PartnersSection() {
           </p>
         </div>
 
-        {/* Banking Partner Cards */}
-        <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-5 md:gap-6">
-          {partnerLogos.map((logo, i) => (
-            <div
-              key={logo}
-              className={`
+        {/* =================================================
+            PARTNER CAROUSEL
+        ================================================= */}
+        <div
+          className={`relative mt-10 transition-all duration-700 ease-out ${
+            isVisible
+              ? "opacity-100 translate-y-0"
+              : "opacity-0 translate-y-10"
+          }`}
+          style={{
+            transitionDelay: "150ms",
+          }}
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+
+          {/* =================================================
+              LEFT ARROW
+          ================================================= */}
+          {totalSlides > 1 && (
+            <button
+              type="button"
+              onClick={previousSlide}
+              aria-label="Previous banking partners"
+              className="
+                group
+                absolute
+                left-3
+                top-1/2
+                z-20
+                -translate-y-1/2
+                flex
+                h-11
+                w-11
+                md:h-12
+                md:w-12
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-white/20
+                bg-navy-950/75
+                text-white
+                shadow-[0_8px_25px_rgba(0,0,0,0.28)]
+                backdrop-blur-md
                 transition-all
-                duration-700
-                ease-out
-                ${
-                  isVisible
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10"
-                }
-              `}
-              style={{
-                transitionDelay: isVisible
-                  ? `${i * 120}ms`
-                  : "0ms",
-              }}
+                duration-300
+                hover:-translate-x-1
+                hover:scale-110
+                hover:border-brand-cyan
+                hover:bg-brand-cyan
+                hover:text-midnight
+                hover:shadow-[0_8px_30px_rgba(54,184,240,0.4)]
+                focus:outline-none
+                focus:ring-2
+                focus:ring-brand-cyan
+                focus:ring-offset-2
+                focus:ring-offset-midnight-light
+              "
             >
-              <div
+              <span
+                aria-hidden="true"
                 className="
-                  transition-all
+                  text-[30px]
+                  font-light
+                  leading-none
+                  -mt-1
+                  transition-transform
                   duration-300
-                  ease-out
-                  hover:-translate-y-2
-                  hover:scale-[1.02]
-                  hover:drop-shadow-[0_10px_25px_rgba(54,184,240,0.25)]
+                  group-hover:-translate-x-0.5
                 "
               >
-                <PartnerCard
-                  logo={logo}
-                  name={`Banking partner ${i + 1}`}
-                />
-              </div>
+                ‹
+              </span>
+            </button>
+          )}
+
+          {/* =================================================
+              CAROUSEL VIEWPORT
+          ================================================= */}
+          <div className="overflow-hidden px-2">
+            <div
+              className="flex transition-transform duration-700 ease-in-out"
+              style={{
+                transform: `translateX(-${currentIndex * 100}%)`,
+              }}
+            >
+              {slides.map((slide, slideIndex) => (
+                <div
+                  key={`partner-slide-${slideIndex}`}
+                  className="
+                    min-w-full
+                    grid
+                    grid-cols-2
+                    md:grid-cols-4
+                    lg:grid-cols-8
+                    gap-5
+                    md:gap-6
+                  "
+                >
+                  {slide.map((partner, partnerIndex) => (
+                    <div
+                      key={`${partner.name}-${partnerIndex}`}
+                      className={`
+                        transition-all
+                        duration-700
+                        ease-out
+                        ${
+                          isVisible
+                            ? "opacity-100 translate-y-0"
+                            : "opacity-0 translate-y-10"
+                        }
+                      `}
+                      style={{
+                        transitionDelay: isVisible
+                          ? `${partnerIndex * 100}ms`
+                          : "0ms",
+                      }}
+                    >
+                      <div
+                        className="
+                          transition-all
+                          duration-300
+                          ease-out
+                          hover:-translate-y-2
+                          hover:scale-[1.02]
+                          hover:drop-shadow-[0_10px_25px_rgba(54,184,240,0.25)]
+                        "
+                      >
+                        <PartnerCard
+                          logo={partner.logo}
+                          name={partner.name}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* =================================================
+              RIGHT ARROW
+          ================================================= */}
+          {totalSlides > 1 && (
+            <button
+              type="button"
+              onClick={nextSlide}
+              aria-label="Next banking partners"
+              className="
+                group
+                absolute
+                right-3
+                top-1/2
+                z-20
+                -translate-y-1/2
+                flex
+                h-11
+                w-11
+                md:h-12
+                md:w-12
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-white/20
+                bg-navy-950/75
+                text-white
+                shadow-[0_8px_25px_rgba(0,0,0,0.28)]
+                backdrop-blur-md
+                transition-all
+                duration-300
+                hover:translate-x-1
+                hover:scale-110
+                hover:border-brand-cyan
+                hover:bg-brand-cyan
+                hover:text-midnight
+                hover:shadow-[0_8px_30px_rgba(54,184,240,0.4)]
+                focus:outline-none
+                focus:ring-2
+                focus:ring-brand-cyan
+                focus:ring-offset-2
+                focus:ring-offset-midnight-light
+              "
+            >
+              <span
+                aria-hidden="true"
+                className="
+                  text-[30px]
+                  font-light
+                  leading-none
+                  -mt-1
+                  transition-transform
+                  duration-300
+                  group-hover:translate-x-0.5
+                "
+              >
+                ›
+              </span>
+            </button>
+          )}
         </div>
 
-        {/* Partner Statistics */}
+        {/* =================================================
+            CAROUSEL INDICATORS
+        ================================================= */}
+        {totalSlides > 1 && (
+          <div
+            className="
+              mt-6
+              flex
+              items-center
+              justify-center
+              gap-2
+            "
+            aria-label="Partner carousel navigation"
+          >
+            {Array.from({ length: totalSlides }).map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setCurrentIndex(index)}
+                aria-label={`Go to partner slide ${index + 1}`}
+                aria-current={
+                  currentIndex === index ? "true" : undefined
+                }
+                className={`
+                  h-2.5
+                  rounded-full
+                  transition-all
+                  duration-300
+                  ${
+                    currentIndex === index
+                      ? "w-7 bg-brand-gold"
+                      : "w-2.5 bg-white/40 hover:bg-white/70"
+                  }
+                `}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* =================================================
+            PARTNER STATISTICS
+        ================================================= */}
         <div
           className={`
             mt-10
@@ -159,7 +458,6 @@ export default function PartnersSection() {
             Strong Partners, Stronger Solutions for Your Financial Growth.
           </p>
         </div>
-
       </div>
     </section>
   );
