@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 export default function PartnersSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
+  const touchStartX = useRef<number | null>(null);
 
   const [isVisible, setIsVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -102,6 +103,35 @@ export default function PartnersSection() {
   };
 
   /* -------------------------------------------------------
+     SWIPE CONTROLS
+  ------------------------------------------------------- */
+  const handleTouchStart = (e: React.TouchEvent<HTMLDivElement>) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent<HTMLDivElement>) => {
+    if (touchStartX.current === null) return;
+
+    const touchEndX = e.changedTouches[0].clientX;
+    const swipeDistance = touchStartX.current - touchEndX;
+
+    // Minimum swipe distance
+    const minimumSwipeDistance = 50;
+
+    if (Math.abs(swipeDistance) >= minimumSwipeDistance) {
+      if (swipeDistance > 0) {
+        // Swipe left
+        nextSlide();
+      } else {
+        // Swipe right
+        previousSlide();
+      }
+    }
+
+    touchStartX.current = null;
+  };
+
+  /* -------------------------------------------------------
      RESET WHEN BREAKPOINT CHANGES
   ------------------------------------------------------- */
   useEffect(() => {
@@ -176,13 +206,10 @@ export default function PartnersSection() {
         >
 
           {/* =================================================
-              LEFT ARROW
+              DESKTOP LEFT ARROW
               
-              Mobile:
-              Small button above cards
-
-              Tablet/Desktop:
-              Button beside cards
+              Hidden on mobile/tablet.
+              Visible only on lg screens.
           ================================================= */}
           {totalSlides > 1 && (
             <button
@@ -192,49 +219,45 @@ export default function PartnersSection() {
               className="
                 group
                 absolute
-                right-11
-                top-[-52px]
+                left-3
+                top-1/2
                 z-20
-                flex
-                h-9
-                w-9
+                hidden
+                h-12
+                w-12
+                -translate-y-1/2
                 items-center
                 justify-center
                 rounded-full
                 border
                 border-white/20
-                bg-navy-950/85
+                bg-navy-950/80
                 text-white
-                shadow-[0_6px_20px_rgba(0,0,0,0.25)]
+                shadow-[0_8px_25px_rgba(0,0,0,0.28)]
                 backdrop-blur-md
                 transition-all
                 duration-300
                 hover:-translate-x-1
-                hover:scale-105
+                hover:scale-110
                 hover:border-brand-cyan
                 hover:bg-brand-cyan
                 hover:text-midnight
-                hover:shadow-[0_8px_25px_rgba(54,184,240,0.4)]
+                hover:shadow-[0_8px_30px_rgba(54,184,240,0.4)]
                 focus:outline-none
                 focus:ring-2
                 focus:ring-brand-cyan
-
-                md:left-3
-                md:right-auto
-                md:top-1/2
-                md:h-12
-                md:w-12
-                md:-translate-y-1/2
+                focus:ring-offset-2
+                focus:ring-offset-midnight-light
+                lg:flex
               "
             >
               <span
                 aria-hidden="true"
                 className="
-                  text-[24px]
-                  md:text-[30px]
+                  -mt-1
+                  text-[30px]
                   font-light
                   leading-none
-                  -mt-0.5
                   transition-transform
                   duration-300
                   group-hover:-translate-x-0.5
@@ -247,10 +270,28 @@ export default function PartnersSection() {
 
           {/* =================================================
               CAROUSEL VIEWPORT
+
+              Swipe enabled on mobile/tablet.
           ================================================= */}
-          <div className="overflow-hidden px-2">
+          <div
+            className="
+              touch-pan-y
+              select-none
+              overflow-hidden
+              px-2
+              cursor-grab
+              active:cursor-grabbing
+            "
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
             <div
-              className="flex transition-transform duration-700 ease-in-out"
+              className="
+                flex
+                transition-transform
+                duration-700
+                ease-in-out
+              "
               style={{
                 transform: `translateX(-${currentIndex * 100}%)`,
               }}
@@ -262,10 +303,10 @@ export default function PartnersSection() {
                     min-w-full
                     grid
                     grid-cols-2
-                    md:grid-cols-4
-                    lg:grid-cols-8
                     gap-5
+                    md:grid-cols-4
                     md:gap-6
+                    lg:grid-cols-8
                   "
                 >
                   {slide.map((partner, partnerIndex) => (
@@ -277,8 +318,8 @@ export default function PartnersSection() {
                         ease-out
                         ${
                           isVisible
-                            ? "opacity-100 translate-y-0"
-                            : "opacity-0 translate-y-10"
+                            ? "translate-y-0 opacity-100"
+                            : "translate-y-10 opacity-0"
                         }
                       `}
                       style={{
@@ -310,13 +351,10 @@ export default function PartnersSection() {
           </div>
 
           {/* =================================================
-              RIGHT ARROW
+              DESKTOP RIGHT ARROW
               
-              Mobile:
-              Small button above cards
-
-              Tablet/Desktop:
-              Button beside cards
+              Hidden on mobile/tablet.
+              Visible only on lg screens.
           ================================================= */}
           {totalSlides > 1 && (
             <button
@@ -326,12 +364,13 @@ export default function PartnersSection() {
               className="
                 group
                 absolute
-                right-0
-                top-[-52px]
+                right-3
+                top-1/2
                 z-20
-                flex
-                h-9
-                w-9
+                hidden
+                h-12
+                w-12
+                -translate-y-1/2
                 items-center
                 justify-center
                 rounded-full
@@ -339,33 +378,29 @@ export default function PartnersSection() {
                 border-brand-cyan/60
                 bg-brand-cyan/90
                 text-midnight
-                shadow-[0_6px_20px_rgba(0,0,0,0.25)]
+                shadow-[0_8px_25px_rgba(0,0,0,0.28)]
                 backdrop-blur-md
                 transition-all
                 duration-300
                 hover:translate-x-1
-                hover:scale-105
+                hover:scale-110
                 hover:bg-brand-cyan
-                hover:shadow-[0_8px_25px_rgba(54,184,240,0.4)]
+                hover:shadow-[0_8px_30px_rgba(54,184,240,0.4)]
                 focus:outline-none
                 focus:ring-2
                 focus:ring-brand-cyan
-
-                md:right-3
-                md:top-1/2
-                md:h-12
-                md:w-12
-                md:-translate-y-1/2
+                focus:ring-offset-2
+                focus:ring-offset-midnight-light
+                lg:flex
               "
             >
               <span
                 aria-hidden="true"
                 className="
-                  text-[24px]
-                  md:text-[30px]
+                  -mt-1
+                  text-[30px]
                   font-light
                   leading-none
-                  -mt-0.5
                   transition-transform
                   duration-300
                   group-hover:translate-x-0.5
@@ -433,15 +468,15 @@ export default function PartnersSection() {
             ease-out
             ${
               isVisible
-                ? "opacity-100 translate-y-0"
-                : "opacity-0 translate-y-8"
+                ? "translate-y-0 opacity-100"
+                : "translate-y-8 opacity-0"
             }
           `}
           style={{
             transitionDelay: isVisible ? "650ms" : "0ms",
           }}
         >
-          <dl className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+          <dl className="grid grid-cols-2 gap-8 text-center md:grid-cols-4">
             {partnerStats.map((stat, i) => (
               <div
                 key={stat.label}
@@ -458,18 +493,18 @@ export default function PartnersSection() {
                   {stat.label}
                 </dt>
 
-                <dd className="text-xl md:text-2xl font-bold text-brand-gold">
+                <dd className="text-xl font-bold text-brand-gold md:text-2xl">
                   {stat.value}
                 </dd>
 
-                <p className="mt-1 text-sm md:text-base text-white">
+                <p className="mt-1 text-sm text-white md:text-base">
                   {stat.label}
                 </p>
               </div>
             ))}
           </dl>
 
-          <p className="mt-6 text-center text-sm md:text-base text-white/80">
+          <p className="mt-6 text-center text-sm text-white/80 md:text-base">
             Strong Partners, Stronger Solutions for Your Financial Growth.
           </p>
         </div>
