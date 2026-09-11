@@ -177,6 +177,12 @@ export default function PartnersSection() {
 
           {/* =================================================
               LEFT ARROW
+              
+              Mobile:
+              Small button above cards
+
+              Tablet/Desktop:
+              Button beside cards
           ================================================= */}
           {totalSlides > 1 && (
             <button
@@ -186,46 +192,49 @@ export default function PartnersSection() {
               className="
                 group
                 absolute
-                left-3
-                top-1/2
+                right-11
+                top-[-52px]
                 z-20
-                -translate-y-1/2
                 flex
-                h-11
-                w-11
-                md:h-12
-                md:w-12
+                h-9
+                w-9
                 items-center
                 justify-center
                 rounded-full
                 border
                 border-white/20
-                bg-navy-950/75
+                bg-navy-950/85
                 text-white
-                shadow-[0_8px_25px_rgba(0,0,0,0.28)]
+                shadow-[0_6px_20px_rgba(0,0,0,0.25)]
                 backdrop-blur-md
                 transition-all
                 duration-300
                 hover:-translate-x-1
-                hover:scale-110
+                hover:scale-105
                 hover:border-brand-cyan
                 hover:bg-brand-cyan
                 hover:text-midnight
-                hover:shadow-[0_8px_30px_rgba(54,184,240,0.4)]
+                hover:shadow-[0_8px_25px_rgba(54,184,240,0.4)]
                 focus:outline-none
                 focus:ring-2
                 focus:ring-brand-cyan
-                focus:ring-offset-2
-                focus:ring-offset-midnight-light
+
+                md:left-3
+                md:right-auto
+                md:top-1/2
+                md:h-12
+                md:w-12
+                md:-translate-y-1/2
               "
             >
               <span
                 aria-hidden="true"
                 className="
-                  text-[30px]
+                  text-[24px]
+                  md:text-[30px]
                   font-light
                   leading-none
-                  -mt-1
+                  -mt-0.5
                   transition-transform
                   duration-300
                   group-hover:-translate-x-0.5
@@ -302,6 +311,12 @@ export default function PartnersSection() {
 
           {/* =================================================
               RIGHT ARROW
+              
+              Mobile:
+              Small button above cards
+
+              Tablet/Desktop:
+              Button beside cards
           ================================================= */}
           {totalSlides > 1 && (
             <button
@@ -311,46 +326,46 @@ export default function PartnersSection() {
               className="
                 group
                 absolute
-                right-3
-                top-1/2
+                right-0
+                top-[-52px]
                 z-20
-                -translate-y-1/2
                 flex
-                h-11
-                w-11
-                md:h-12
-                md:w-12
+                h-9
+                w-9
                 items-center
                 justify-center
                 rounded-full
                 border
-                border-white/20
-                bg-navy-950/75
-                text-white
-                shadow-[0_8px_25px_rgba(0,0,0,0.28)]
+                border-brand-cyan/60
+                bg-brand-cyan/90
+                text-midnight
+                shadow-[0_6px_20px_rgba(0,0,0,0.25)]
                 backdrop-blur-md
                 transition-all
                 duration-300
                 hover:translate-x-1
-                hover:scale-110
-                hover:border-brand-cyan
+                hover:scale-105
                 hover:bg-brand-cyan
-                hover:text-midnight
-                hover:shadow-[0_8px_30px_rgba(54,184,240,0.4)]
+                hover:shadow-[0_8px_25px_rgba(54,184,240,0.4)]
                 focus:outline-none
                 focus:ring-2
                 focus:ring-brand-cyan
-                focus:ring-offset-2
-                focus:ring-offset-midnight-light
+
+                md:right-3
+                md:top-1/2
+                md:h-12
+                md:w-12
+                md:-translate-y-1/2
               "
             >
               <span
                 aria-hidden="true"
                 className="
-                  text-[30px]
+                  text-[24px]
+                  md:text-[30px]
                   font-light
                   leading-none
-                  -mt-1
+                  -mt-0.5
                   transition-transform
                   duration-300
                   group-hover:translate-x-0.5
